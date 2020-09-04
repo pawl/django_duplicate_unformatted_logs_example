@@ -1,0 +1,14 @@
+---
+version: '3.5'
+
+services:
+
+  web:
+    build: .
+    command: >
+      uwsgi --ini uwsgi.ini
+    working_dir: /code/
+    volumes:
+      - .:/code
+    ports:
+      - 8080:8080
