@@ -2,9 +2,11 @@ This is a demonstration of a bug that can cause duplicate unformatted log messag
 
 ## Problem Background
 
-The problem is caused by an accidental call to `logging.info` (without using `logging.getLogger` to get a specific logger) while the root logger isn't already configured.
+Example of logs with the problem: [Link](../blob/master/before.txt)
 
-Python will automatically configure the root logger with defaults the first time you log to an unconfigured root logger. You can demonstrate this with the python REPL:
+The problem is caused by an [accidental call to `logging.warning`](../blob/master/myapp/views.py#L16) (without using specific logger from `logging.getLogger(__name__)` ) while the root logger isn't already configured.
+
+Python will automatically configure the root logger to log with a StreamHandler to `stderr` the first time you log to an unconfigured root logger. You can demonstrate this with the python REPL:
 ```
 >>> import logging
 >>> root_logger = logging.getLogger()  # FYI: calling getLogger without an argument gets the root logger
@@ -15,11 +17,17 @@ Python will automatically configure the root logger with defaults the first time
 [<StreamHandler <stderr> (NOTSET)>]
 ```
 
-Why isn't the root logger already configured? Because `'disable_existing_loggers': True` in settings.py unconfigures it, and the other loggers in settings.py are set to `'propagate': True` (the default) which makes the logs bubble up to the newly configured root logger.
+Why isn't the root logger already configured? Because `'disable_existing_loggers': True` in [settings.py](../blob/master/mysite/settings.py#L134) unconfigures it, and the other loggers in [settings.py](../blob/master/mysite/settings.py#L159) are set to `'propagate': True` (the default) which makes the logs bubble up to the newly configured root logger.
 
 ## Solution
 
-It's probably a good idea to set `disable_existing_loggers` to `False`, configure the root logger in settings.py, and set all your specific loggers to `'propagate': False`. This has a few benefits:
+First you should switch the calls to `logging.warning` to use a logger from `logger.getLogger(__name__)`.
+
+Here's what the logs look like after doing that: [Link](../blob/master/after.txt)
+
+It's also probably a good idea to set `disable_existing_loggers` to `False`, configure the root logger in settings.py, and set all your specific loggers to `'propagate': False`.
+
+This has a few benefits:
 
 * You won't accidentally configure the root logger automatically because it's already configured.
 * You won't need to remember to add new packages to your loggers, unless you want to override the default logging levels set by your root logger.

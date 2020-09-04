@@ -162,7 +162,7 @@ LOGGING = {
             'handlers': ['json'],
             'level': 'DEBUG',
         },
-        'blah': {
+        'myapp': {
             'handlers': ['json'],
             'level': 'DEBUG',
         }
