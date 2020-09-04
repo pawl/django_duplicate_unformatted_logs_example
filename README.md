@@ -4,7 +4,7 @@ This is a demonstration of a bug that can cause duplicate unformatted log messag
 
 Example of logs with the problem: [Link](before.txt)
 
-The problem is caused by an [accidental call to `logging.warning`](myapp/views.py#L16) (without using specific logger from `logging.getLogger(__name__)` ) while the root logger isn't already configured.
+The problem is caused by an [accidental call to `logging.warning`](myapp/views.py#L16) (without using specific logger from `logging.getLogger(__name__)` ) while the [root logger isn't already configured](mysite/settings.py#L133).
 
 Python will automatically configure the root logger to log with a StreamHandler to `stderr` the first time you log to an unconfigured root logger. You can demonstrate this with the python REPL:
 ```
@@ -30,6 +30,7 @@ It's also probably a good idea to set `disable_existing_loggers` to `False`, con
 This has a few benefits:
 
 * You won't accidentally configure the root logger automatically because it's already configured.
+* You can remove loggers that match your root logger settings (no need to override it if it's already default).
 * You won't need to remember to add new packages to your loggers, unless you want to override the default logging levels set by your root logger.
 * You probably currently have a bunch of packages that aren't logging because you forgot to add those to the loggers in settings.
 
