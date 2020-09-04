@@ -2,9 +2,9 @@ This is a demonstration of a bug that can cause duplicate unformatted log messag
 
 ## Problem Background
 
-Example of logs with the problem: [Link](../blob/master/before.txt)
+Example of logs with the problem: [Link](before.txt)
 
-The problem is caused by an [accidental call to `logging.warning`](../blob/master/myapp/views.py#L16) (without using specific logger from `logging.getLogger(__name__)` ) while the root logger isn't already configured.
+The problem is caused by an [accidental call to `logging.warning`](myapp/views.py#L16) (without using specific logger from `logging.getLogger(__name__)` ) while the root logger isn't already configured.
 
 Python will automatically configure the root logger to log with a StreamHandler to `stderr` the first time you log to an unconfigured root logger. You can demonstrate this with the python REPL:
 ```
@@ -17,13 +17,13 @@ Python will automatically configure the root logger to log with a StreamHandler 
 [<StreamHandler <stderr> (NOTSET)>]
 ```
 
-Why isn't the root logger already configured? Because `'disable_existing_loggers': True` in [settings.py](../blob/master/mysite/settings.py#L134) unconfigures it, and the other loggers in [settings.py](../blob/master/mysite/settings.py#L159) are set to `'propagate': True` (the default) which makes the logs bubble up to the newly configured root logger.
+Why isn't the root logger already configured? Because `'disable_existing_loggers': True` in [settings.py](mysite/settings.py#L134) unconfigures it, and the other loggers in [settings.py](mysite/settings.py#L159) are set to `'propagate': True` (the default) which makes the logs bubble up to the newly configured root logger.
 
 ## Solution
 
-First you should switch the calls to `logging.warning` to use a logger from `logger.getLogger(__name__)`.
+First you should switch [the calls to `logging.warning`](myapp/views.py#L16) to use a logger from `logger.getLogger(__name__)`.
 
-Here's what the logs look like after doing that: [Link](../blob/master/after.txt)
+Here's what the logs look like after doing that: [Link](after.txt)
 
 It's also probably a good idea to set `disable_existing_loggers` to `False`, configure the root logger in settings.py, and set all your specific loggers to `'propagate': False`.
 
